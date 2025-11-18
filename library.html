@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Library System</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #e3f2fd;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      width: 100%;
+      background: #1565c0;
+      color: white;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-left { font-size: 20px; font-weight: bold; }
+
+    .nav-right { display: flex; gap: 20px; align-items: center; }
+
+    .nav-item { cursor: pointer; padding: 6px 10px; border-radius: 4px; }
+    .nav-item:hover { background: #0d47a1; }
+
+    .dropdown-content {
+      position: absolute;
+      background: white;
+      color: black;
+      min-width: 180px;
+      display: none;
+      border-radius: 6px;
+      top: 34px;
+      right: 0;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      z-index: 50;
+    }
+
+    .dropdown:hover .dropdown-content { display: block; }
+
+    /* MAIN CONTAINERS */
+    .container {
+      width: 100%;
+      max-width: 600px;
+      background: white;
+      padding: 20px;
+      margin: 20px auto;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 4px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      margin-top: 12px;
+      border-radius: 8px;
+      background: #1565c0;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover { background: #0d47a1; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+
+    th { background: #1976d2; color: white; }
+
+    /* ID CARD */
+    .id-card {
+      width: 300px;
+      height: 180px;
+      border: 2px solid #1565c0;
+      border-radius: 12px;
+      padding: 16px;
+      margin: auto;
+      display: flex;
+      background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    }
+
+    .id-card-left { flex: 1; }
+    .id-card-left h3 { margin: 0; color: #0d47a1; }
+    .id-card-left p { margin: 4px 0; }
+
+    .id-card-right {
+      width: 120px;
+      height: 120px;
+      background: white;
+      border: 1px solid #1565c0;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <div class="nav-left">📚 Library System</div>
+  <div class="nav-right">
+    <div id="navHome" class="nav-item" style="display:none;" onclick="showHomeSection()">Home</div>
+    <div id="navMore" class="nav-item dropdown" style="display:none;">
+      More ▾
+      <div class="dropdown-content">
+        <div onclick="showLibraryRegistration()">Library Registration</div>
+        <div onclick="showBorrowingSection()">Borrowing of Books</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div class="container" id="registerContainer">
+  <h2>Register</h2>
+  <input id="regUsername" placeholder="Username">
+  <input id="regPassword" type="password" placeholder="Password">
+  <button id="registerBtn">Register</button>
+  <p onclick="showLogin()">Already have an account? Login</p>
+</div>
+
+<!-- LOGIN -->
+<div class="container" id="loginContainer" style="display:none;">
+  <h2>Login</h2>
+  <input id="loginUsername" placeholder="Username">
+  <input id="loginPassword" type="password" placeholder="Password">
+  <button id="loginBtn">Login</button>
+  <p onclick="showRegister()">Don't have an account? Register</p>
+</div>
+
+<!-- LOGGED IN -->
+<div class="container" id="loggedInContainer" style="display:none;">
+  <h2>Welcome, <span id="displayUser"></span></h2>
+
+  <!-- HOME -->
+  <div id="homeSection" style="display:none; text-align:center;">
+    <h3>Welcome!</h3>
+    <p>Select a feature from the navbar above.</p>
+  </div>
+
+  <!-- LIBRARY REG -->
+  <div id="libraryRegSection" style="display:none;">
+    <h3>Library Registration</h3>
+
+    <label>Name</label>
+    <input id="owner" placeholder="Juan Dela Cruz">
+
+    <label>Occupation</label>
+    <input id="occupation" placeholder="Student">
+
+    <label>Telephone</label>
+    <input id="number" placeholder="1234567890">
+
+    <button id="generateBtn">Generate QR & ID</button>
+
+    <div id="qrcode" style="text-align:center; display:none;">
+      <canvas id="qrcanvas" width="200" height="200"></canvas><br>
+      <button id="downloadPdfBtn">Download QR as PDF</button>
+    </div>
+
+    <div id="idCardContainer" class="container" style="display:none;">
+      <h3>ID Card</h3>
+      <div id="idCardContent"></div>
+      <button id="downloadIdCardBtn">Download ID Card</button>
+    </div>
+  </div>
+
+  <!-- BORROWING -->
+  <div id="borrowingSection" style="display:none;">
+    <h3>Borrow a Book</h3>
+    <form id="borrowForm">
+      <label>Title</label><input id="title" required>
+      <label>Author</label><input id="author" required>
+      <label>References</label><textarea id="references"></textarea>
+      <button type="submit">Submit</button>
+    </form>
+
+    <h3>Borrowed Books</h3>
+    <table>
+      <thead><tr><th>#</th><th>User</th><th>Title</th><th>Author</th><th>References</th><th>Time</th></tr></thead>
+      <tbody id="booksTable"></tbody>
+    </table>
+  </div>
+
+  <!-- HISTORY -->
+  <h3>Login/Logout History</h3>
+  <table>
+    <thead><tr><th>#</th><th>User</th><th>Login</th><th>Logout</th></tr></thead>
+    <tbody id="historyTable"></tbody>
+  </table>
+
+  <button id="logoutBtn">Logout</button>
+</div>
+
+<!-- IMPORT JS -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+<script>
+/* ===== AUTH ===== */
+const api = "https://yourdomain.com/library_api.php"; // <-- Add your backend API URL here
+
+function updateNavbar(show) {
+  navHome.style.display = show ? "block" : "none";
+  navMore.style.display = show ? "block" : "none";
+}
+
+function showLogin(){
+  registerContainer.style.display="none";
+  loginContainer.style.display="block";
+  loggedInContainer.style.display="none";
+  updateNavbar(false);
+}
+
+function showRegister(){
+  loginContainer.style.display="none";
+  registerContainer.style.display="block";
+  loggedInContainer.style.display="none";
+  updateNavbar(false);
+}
+
+function showLoggedIn(user){
+  displayUser.textContent = user;
+  registerContainer.style.display="none";
+  loginContainer.style.display="none";
+  loggedInContainer.style.display="block";
+  updateNavbar(true);
+  loadHistory(user);
+  loadBorrowedBooks(user);
+  showHomeSection();
+}
+
+registerBtn.onclick = () => {
+  let u = regUsername.value.trim(), p = regPassword.value.trim();
+  if(!u || !p) return alert("Fill fields");
+
+  let users = JSON.parse(localStorage.getItem("users")||"[]");
+  if(users.find(x=>x.username===u)) return alert("User exists");
+
+  users.push({username:u, password:p});
+  localStorage.setItem("users", JSON.stringify(users));
+  showLogin();
+};
+
+loginBtn.onclick = () => {
+  let u = loginUsername.value.trim(), p = loginPassword.value.trim();
+  let users = JSON.parse(localStorage.getItem("users")||"[]");
+  let acc = users.find(x=>x.username===u && x.password===p);
+  if(!acc) return alert("Invalid");
+
+  currentUser = u;
+  let time = new Date();
+
+  let sess = JSON.parse(localStorage.getItem("sessions")||"{}");
+  if(!sess[u]) sess[u] = [];
+  sess[u].push({login:time, logout:null});
+  localStorage.setItem("sessions", JSON.stringify(sess));
+
+  localStorage.setItem("loggedInUser", u);
+  showLoggedIn(u);
+};
+
+logoutBtn.onclick = () => {
+  let sess = JSON.parse(localStorage.getItem("sessions")||"{}");
+  let s = sess[currentUser];
+  if(s && s.length > 0) s[s.length-1].logout = new Date();
+  localStorage.setItem("sessions", JSON.stringify(sess));
+  localStorage.removeItem("loggedInUser");
+  showLogin();
+};
+
+/* ===== SECTIONS ===== */
+function hideAll(){
+  homeSection.style.display="none";
+  libraryRegSection.style.display="none";
+  borrowingSection.style.display="none";
+}
+
+function showHomeSection(){ hideAll(); homeSection.style.display="block"; }
+function showLibraryRegistration(){ hideAll(); libraryRegSection.style.display="block"; }
+function showBorrowingSection(){ hideAll(); borrowingSection.style.display="block"; }
+
+/* ===== BORROWING ===== */
+borrowForm.onsubmit = e => {
+  e.preventDefault();
+  let books = JSON.parse(localStorage.getItem("borrowedBooks")||"{}");
+  if(!books[currentUser]) books[currentUser]=[];
+
+  books[currentUser].push({
+    title:title.value,
+    author:author.value,
+    references:references.value,
+    borrowTime:new Date()
+  });
+
+  localStorage.setItem("borrowedBooks", JSON.stringify(books));
+  loadBorrowedBooks(currentUser);
+  borrowForm.reset();
+};
+
+function loadBorrowedBooks(u){
+  let books = JSON.parse(localStorage.getItem("borrowedBooks")||"{}")[u]||[];
+  booksTable.innerHTML="";
+  books.forEach((b,i)=>{
+    booksTable.innerHTML+=`
+      <tr>
+        <td>${i+1}</td>
+        <td>${u}</td>
+        <td>${b.title}</td>
+        <td>${b.author}</td>
+        <td>${b.references}</td>
+        <td>${new Date(b.borrowTime).toLocaleString()}</td>
+      </tr>`;
+  });
+}
+
+/* ===== HISTORY ===== */
+function loadHistory(u){
+  let logs = JSON.parse(localStorage.getItem("sessions")||"{}")[u]||[];
+  historyTable.innerHTML="";
+  logs.forEach((s,i)=>{
+    historyTable.innerHTML+=`
+      <tr>
+        <td>${i+1}</td>
+        <td>${u}</td>
+        <td>${new Date(s.login).toLocaleString()}</td>
+        <td>${s.logout ? new Date(s.logout).toLocaleString() : "Active"}</td>
+      </tr>`;
+  });
+}
+
+/* ===== QR & ID CARD ===== */
+generateBtn.onclick = () => {
+  let name = owner.value.trim(),
+      occ  = occupation.value.trim(),
+      tel  = number.value.trim();
+
+  if(!name || !occ || !tel) return alert("Fill fields");
+
+  let data = `Library Registration:\nName: ${name}\nOccupation: ${occ}\nTelephone: ${tel}`;
+
+  qrcode.style.display="block";
+  QRCode.toCanvas(qrcanvas, data);
+
+  idCardContainer.style.display="block";
+  idCardContent.innerHTML = `
+    <div class="id-card">
+      <div class="id-card-left">
+        <h3>${name}</h3>
+        <p>Occupation: ${occ}</p>
+        <p>Tel: ${tel}</p>
+      </div>
+      <div class="id-card-right">
+        <canvas id="idCardQR" width="100" height="100"></canvas>
+      </div>
+    </div>`;
+
+  let cardQR = document.getElementById("idCardQR");
+  QRCode.toCanvas(cardQR, data);
+
+  /* PDF BUTTONS */
+  downloadPdfBtn.onclick = () => {
+    const {jsPDF} = window.jspdf;
+    let pdf = new jsPDF();
+    pdf.text("Library QR Code", 20,20);
+    pdf.addImage(qrcanvas.toDataURL(),"PNG",20,40,120,120);
+    pdf.save(`${name}_QR.pdf`);
+  };
+
+  downloadIdCardBtn.onclick = () => {
+    const {jsPDF} = window.jspdf;
+    let pdf = new jsPDF();
+    pdf.text("Library ID Card",20,20);
+    pdf.addImage(cardQR.toDataURL(),"PNG",20,40,120,120);
+    pdf.save(`${name}_IDCard.pdf`);
+  };
+};
+</script>
+
+</body>
+</html>
