@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Library System - Login/Register</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #e3f2fd;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+      width: 300px;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    button {
+      background: #1565c0;
+      color: white;
+      cursor: pointer;
+      border: none;
+    }
+    button:hover { background: #0d47a1; }
+    p { text-align: center; margin-top: 10px; cursor: pointer; color: #1565c0; }
+    p:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<div class="container" id="registerContainer">
+  <h2>Register</h2>
+  <input id="regUsername" placeholder="Username">
+  <input id="regPassword" type="password" placeholder="Password">
+  <button id="registerBtn">Register</button>
+  <p onclick="showLogin()">Already have an account? Login</p>
+</div>
+
+<div class="container" id="loginContainer" style="display:none;">
+  <h2>Login</h2>
+  <input id="loginUsername" placeholder="Username">
+  <input id="loginPassword" type="password" placeholder="Password">
+  <button id="loginBtn">Login</button>
+  <p onclick="showRegister()">Don't have an account? Register</p>
+</div>
+
+<script>
+function showLogin() {
+  document.getElementById("registerContainer").style.display = "none";
+  document.getElementById("loginContainer").style.display = "block";
+}
+function showRegister() {
+  document.getElementById("loginContainer").style.display = "none";
+  document.getElementById("registerContainer").style.display = "block";
+}
+
+// Registration
+document.getElementById("registerBtn").onclick = () => {
+  let u = document.getElementById("regUsername").value.trim();
+  let p = document.getElementById("regPassword").value.trim();
+  if(!u || !p) return alert("Fill all fields");
+
+  let users = JSON.parse(localStorage.getItem("users")||"[]");
+  if(users.find(x=>x.username===u)) return alert("User exists");
+
+  users.push({username:u, password:p});
+  localStorage.setItem("users", JSON.stringify(users));
+  alert("Registration successful!");
+  showLogin();
+};
+
+// Login
+document.getElementById("loginBtn").onclick = () => {
+  let u = document.getElementById("loginUsername").value.trim();
+  let p = document.getElementById("loginPassword").value.trim();
+  let users = JSON.parse(localStorage.getItem("users")||"[]");
+  let acc = users.find(x=>x.username===u && x.password===p);
+  if(!acc) return alert("Invalid credentials");
+
+  localStorage.setItem("loggedInUser", u);
+  window.location.href = "dashboard.html";
+};
+
+// Auto-redirect if already logged in
+if(localStorage.getItem("loggedInUser")) {
+  window.location.href = "dashboard.html";
+}
+</script>
+
+</body>
+</html>
